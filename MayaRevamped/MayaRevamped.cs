@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using HarmonyLib;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.IO;
@@ -25,6 +26,7 @@ public class MayaRevamped : Mod
 
     public IEnumerator Start()
     {
+        // Get external resources - vertices from JSON, updated normal map texture and updated diffuse texture
         AssetBundleCreateRequest request = AssetBundle.LoadFromMemoryAsync(GetEmbeddedFileBytes("mayabundle"));
         yield return request;
         mayaBundle = request.assetBundle;
@@ -39,13 +41,10 @@ public class MayaRevamped : Mod
             Debug.Log("loadedAndroMayaVertices");
         }
 
-        loadedMayaDiffuseTexture = mayaBundle.LoadAsset<Texture2D>("betterTextureV2");
         loadedMayaNormalTexture = mayaBundle.LoadAsset<Texture2D>("updatedNormalMapV4");
+        loadedMayaDiffuseTexture = mayaBundle.LoadAsset<Texture2D>("betterTextureV2");
 
         Debug.Log("Mod MayaRevamped has been loaded! What a wonderful day.");
-
-
-        
     }
 
     public override void WorldEvent_WorldLoaded()
@@ -54,7 +53,7 @@ public class MayaRevamped : Mod
         {
             loadPlayerRelated();
             mode = 1;
-            switchMaya();
+            //switchMaya();
         }
     }
 
@@ -140,5 +139,34 @@ public class MayaRevamped : Mod
             Debug.Log($"NO, OTHER CHARACTER IN USE!");
         }
         return;
+    }
+
+    public static void setAndroMaya()
+    {
+        if (!initialized) loadPlayerRelated();
+        localPlayer = RAPI.GetLocalPlayer();
+        VoiceType currentVoiceType = localPlayer.currentModel.voiceType;
+        if ((int)currentVoiceType == 1)
+        {
+            Debug.Log("VoiceType is Maya.");
+            localPlayer.currentModel.fullBodyMesh.sharedMesh.vertices = loadedAndroMayaVertices;
+            localPlayer.currentModel.fullBodyMesh.sharedMaterials[0].SetTexture("_Diffuse", loadedMayaDiffuseTexture);
+            localPlayer.currentModel.fullBodyMesh.sharedMaterials[0].SetTexture("_Normal", loadedMayaNormalTexture);
+            Debug.Log("Swapped vertices, diffuse and normal texture to AndroMaya successfully.");
+        }
+        else
+        {
+            Debug.Log("VoiceType is not Maya.");
+        }
+    }
+
+    [HarmonyPatch(typeof(CharacterModelModifications), "Start")]
+    public class HarmonyPatch_IgnoreCollisionOnAlt
+    {
+        [HarmonyPostfix]
+        static void SwapModelIfMaya()
+        {
+            setAndroMaya();
+        }
     }
 }
