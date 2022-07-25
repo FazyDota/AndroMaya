@@ -51,9 +51,7 @@ public class MayaRevamped : Mod
     {
         if (RAPI.IsCurrentSceneGame())
         {
-            loadPlayerRelated();
-            mode = 1;
-            //switchMaya();
+            setAndroMaya();
         }
     }
 
@@ -71,6 +69,25 @@ public class MayaRevamped : Mod
         initialized = true;
     }
 
+    public static void setAndroMaya()
+    {
+        if (!initialized) loadPlayerRelated();
+        localPlayer = RAPI.GetLocalPlayer();
+        VoiceType currentVoiceType = localPlayer.currentModel.voiceType;
+        if (currentVoiceType == VoiceType.Maya)
+        {
+            Debug.Log("VoiceType is Maya.");
+            localPlayer.currentModel.fullBodyMesh.sharedMesh.vertices = loadedAndroMayaVertices;
+            localPlayer.currentModel.fullBodyMesh.sharedMaterials[0].SetTexture("_Diffuse", loadedMayaDiffuseTexture);
+            localPlayer.currentModel.fullBodyMesh.sharedMaterials[0].SetTexture("_Normal", loadedMayaNormalTexture);
+            Debug.Log("Swapped vertices, diffuse and normal texture to AndroMaya successfully.");
+        }
+        else
+        {
+            Debug.Log("VoiceType is not Maya.");
+        }
+    }
+
     [ConsoleCommand(name: "switchMayaVisual", docs: "Swaps back and forth between different Maya models and textures.")]
     public static string SwitchMayaVisual(string[] args)
     {
@@ -85,7 +102,7 @@ public class MayaRevamped : Mod
         if (localPlayer is null)
         {
             localPlayer = RAPI.GetLocalPlayer();
-            
+
         }
         var currentVoiceType = raftNetwork.GetLocalPlayer().currentModel.voiceType;
         Debug.Log($"Current voice type: {currentVoiceType}");
@@ -101,7 +118,7 @@ public class MayaRevamped : Mod
 
         Network_Player currentNetworkPlayer = raftNetwork.GetLocalPlayer();
 
-        if ((int)currentVoiceType == 1)
+        if (currentVoiceType == VoiceType.Maya)
         {
             Debug.Log($"YES, MAYA CHARACTER IN USE!");
             if (mode == 0)
@@ -141,32 +158,14 @@ public class MayaRevamped : Mod
         return;
     }
 
-    public static void setAndroMaya()
-    {
-        if (!initialized) loadPlayerRelated();
-        localPlayer = RAPI.GetLocalPlayer();
-        VoiceType currentVoiceType = localPlayer.currentModel.voiceType;
-        if ((int)currentVoiceType == 1)
-        {
-            Debug.Log("VoiceType is Maya.");
-            localPlayer.currentModel.fullBodyMesh.sharedMesh.vertices = loadedAndroMayaVertices;
-            localPlayer.currentModel.fullBodyMesh.sharedMaterials[0].SetTexture("_Diffuse", loadedMayaDiffuseTexture);
-            localPlayer.currentModel.fullBodyMesh.sharedMaterials[0].SetTexture("_Normal", loadedMayaNormalTexture);
-            Debug.Log("Swapped vertices, diffuse and normal texture to AndroMaya successfully.");
-        }
-        else
-        {
-            Debug.Log("VoiceType is not Maya.");
-        }
-    }
-
+    // currently not used, todo 
     [HarmonyPatch(typeof(CharacterModelModifications), "Start")]
     public class HarmonyPatch_IgnoreCollisionOnAlt
     {
         [HarmonyPostfix]
         static void SwapModelIfMaya()
         {
-            setAndroMaya();
+            //setAndroMaya();
         }
     }
 }

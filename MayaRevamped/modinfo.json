@@ -9,6 +9,6 @@
   "gameVersion": "1.0.2",
   "requiredByAllPlayers": false,
   "updateUrl": "https://www.raftmodding.com/api/v1/mods/mayarevamped/version.txt",
-  "isModPermanent": false,
+  "isModPermanent": true,
   "excludedFiles": []
 }
