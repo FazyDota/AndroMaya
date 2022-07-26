@@ -87,7 +87,7 @@ public class AndroMaya : Mod
         }
     }
 
-    public static int switchCommandMode = 1;
+    public static int switchCommandMode = 0;
 
     [ConsoleCommand(name: "switchMayaVisual", docs: "Swaps back and forth between different Maya models and textures.")]
     public static string SwitchMayaVisual(string[] args)
