@@ -6,7 +6,7 @@ using System.IO;
 using System.Text;
 using UnityEngine;
 
-public class MayaRevamped : Mod
+public class AndroMaya : Mod
 {
     public static Network_Player localPlayer = null;
 
@@ -43,7 +43,7 @@ public class MayaRevamped : Mod
         androMayaNormalTexture = androMayaBundle.LoadAsset<Texture2D>("updatedNormalMapV4");
         androMayaDiffuseTexture = androMayaBundle.LoadAsset<Texture2D>("betterTextureV2");
 
-        Debug.Log("Mod MayaRevamped has been loaded! What a wonderful day.");
+        Debug.Log($"Mod AndroMaya {version} has been loaded! What a wonderful day.");
     }
 
     public override void WorldEvent_WorldLoaded()
